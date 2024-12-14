@@ -7,7 +7,7 @@ const port = process.env.PORT || 9000;
 app.use(cors());
 app.use(express.json());
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tkglq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -23,10 +23,33 @@ async function run() {
   try {
     // collection
     const jobCollection = client.db("jobsPortal").collection("jobs");
+    const jobApplication_Collection = client
+      .db("jobsPortal")
+      .collection("application");
     //     find the all data :
     app.get("/jobs", async (req, res) => {
       const cursor = jobCollection.find();
       const result = await cursor.toArray();
+      res.send(result);
+    });
+    //   details getting
+    app.get("/job/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await jobCollection.findOne(query);
+      res.send(result);
+    });
+    // job application creations
+    app.post("/job-application", async (req, res) => {
+      const application = req.body;
+      const result = await jobApplication_Collection.insertOne(application);
+      res.send(result);
+    });
+
+    app.get("/job-application", async (req, res) => {
+      const email = req.query.email;
+      const query = { Applicant_email: email };
+      const result = await jobApplication_Collection.find(query).toArray();
       res.send(result);
     });
     //     await client.connect();
