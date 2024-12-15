@@ -50,6 +50,20 @@ async function run() {
       const email = req.query.email;
       const query = { Applicant_email: email };
       const result = await jobApplication_Collection.find(query).toArray();
+      // fokira way to aggrigate data
+      for (const application of result) {
+        // console.log(application.job_id);
+        const query1 = { _id: new ObjectId(application.job_id) };
+        const job = await jobCollection.findOne(query1);
+        if (job) {
+          application.title = job.title;
+          application.company = job.company;
+          application.company_logo = job.company_logo;
+          application.location = job.location;
+          application.category = job.category;
+          application.status = job.status;
+        }
+      }
       res.send(result);
     });
     //     await client.connect();
