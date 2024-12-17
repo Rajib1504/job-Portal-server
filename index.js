@@ -59,6 +59,7 @@ async function run() {
     //app.get('job-application/:job_id')==> geta specific job application by id
     app.get("/job-application/:job_id", async (req, res) => {
       const jobId = req.params.job_id;
+      // console.log(jobId);
       const query = { job_id: jobId };
       const result = await jobApplication_Collection.find(query).toArray();
       res.send(result);
@@ -86,6 +87,21 @@ async function run() {
           application.status = job.status;
         }
       }
+      res.send(result);
+    });
+    app.patch("/job-application/:id", async (req, res) => {
+      const id = req.params.id;
+      const data = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          status: data.status,
+        },
+      };
+      const result = await jobApplication_Collection.updateOne(
+        filter,
+        updatedDoc
+      );
       res.send(result);
     });
     //     await client.connect();
